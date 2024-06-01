@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Поиск книг</title>
+</head>
+<body>
+  <h1>Поиск книг</h1>
+  <h3>made by Zhanel</h3>
+  <input type="text" id="searchInput" placeholder="Введите название книги">
+  <button id="searchButton">Искать</button>
+  <div id="searchResults"></div>
+  <div id="bookDetails"></div>
+
+  <script>
+    function searchBooks(query) {
+      const url = `https://openlibrary.org/search.json?q=${query}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const books = data.docs;
+          const searchResults = document.getElementById('searchResults');
+          searchResults.innerHTML = '';
+
+          books.forEach(book => {
+            const div = document.createElement('div');
+            div.innerHTML = `<h2>${book.title}</h2><p>${book.author_name ? 'Автор(ы): ' + book.author_name.join(', ') : 'Автор неизвестен'}</p>`;
+            div.addEventListener('click', () => showBookDetails(book.key));
+            searchResults.appendChild(div);
+          });
+        })
+        .catch(error => console.error(error));
+    }
+
+    function showBookDetails(bookKey) {
+      const url = `https://openlibrary.org${bookKey}.json`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(book => {
+          const bookDetails = document.getElementById('bookDetails');
+          bookDetails.innerHTML = `<h2>${book.title}</h2><p>Автор(ы): ${book.authors ? book.authors.map(author => author.name).join(', ') : 'Unknown'}</p><p>${book.description ? book.description.value : 'Описание отсутствует'}</p>`;
+        })
+        .catch(error => console.error(error));
+    }
+
+    const searchButton = document.getElementById('searchButton');
+    searchButton.addEventListener('click', () => {
+      const searchInput = document.getElementById('searchInput');
+      const query = searchInput.value;
+      searchBooks(query);
+    });
+  </script>
+</body>
+</html>
+
+
+
